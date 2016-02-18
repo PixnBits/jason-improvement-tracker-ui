@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { actions as counterActions } from '../../redux/modules/counter'
-import DuckImage from './Duck.jpg'
-import classes from './HomeView.scss'
+import { actions as trackerActions } from '../../redux/modules/tracker'
+import TrackersList from '../../components/TrackersList'
+import Loader from '../../components/Loader'
 
 // We define mapStateToProps where we'd normally use
 // the @connect decorator so the data requirements are clear upfront, but then
@@ -11,45 +11,55 @@ import classes from './HomeView.scss'
 // the component can be tested w/ and w/o being connected.
 // See: http://rackt.github.io/redux/docs/recipes/WritingTests.html
 const mapStateToProps = (state) => ({
-  counter: state.counter
+  goals: state.tracker
 })
+
 export class HomeView extends React.Component {
+  componentDidMount () {
+    const { store } = this.context
+    this.unsubscribe = store.subscribe(() =>
+      this.forceUpdate()
+    )
+    this.props.fetchData()
+  }
+
+  componentWillUnmount () {
+    this.unsubscribe()
+  }
+
   static propTypes = {
-    counter: PropTypes.number.isRequired,
-    doubleAsync: PropTypes.func.isRequired,
-    increment: PropTypes.func.isRequired
+    fetchData: PropTypes.func.isRequired,
+    goals: PropTypes.array
   };
 
   render () {
-    return (
-      <div className='container text-center'>
-        <div className='row'>
-          <div className='col-xs-2 col-xs-offset-5'>
-            <img className={classes.duck}
-                 src={DuckImage}
-                 alt='This is a duck, because Redux.' />
-          </div>
+    let loader, goalsContainer
+    if (!this.props.goals || !this.props.goals.length) {
+      loader = <Loader />
+    } else {
+      goalsContainer = (
+      <div>
+        <h1 className='dashboard-title'>Jason's Improvement Tracker</h1>
+        <h2 className='dashboard-subtitle'>Stats for: <span className='date-header'>2016-02-15</span></h2>
+        <div id='tracker-list-container' className='row'>
+          <TrackersList />
         </div>
-        <h1>Welcome to the React Redux Starter Kit</h1>
-        <h2>
-          Sample Counter:
-          {' '}
-          <span className={classes['counter--green']}>{this.props.counter}</span>
-        </h2>
-        <button className='btn btn-default'
-                onClick={() => this.props.increment(1)}>
-          Increment
-        </button>
-        {' '}
-        <button className='btn btn-default'
-                onClick={this.props.doubleAsync}>
-          Double (Async)
-        </button>
         <hr />
         <Link to='/404'>Go to 404 Page</Link>
+      </div>
+     )
+    }
+    return (
+      <div className='container text-center'>
+        {loader}
+        {goalsContainer}
       </div>
     )
   }
 }
 
-export default connect(mapStateToProps, counterActions)(HomeView)
+HomeView.contextTypes = {
+  store: React.PropTypes.object
+}
+
+export default connect(mapStateToProps, trackerActions)(HomeView)

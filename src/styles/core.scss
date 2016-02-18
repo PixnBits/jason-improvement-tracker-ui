@@ -1,6 +1,9 @@
-:global {
+  :global {
+
   @import 'base';
   @import 'vendor/normalize';
+  @import 'components/Tile';
+  @import 'components/dailyGoal';
 
   // Some best-practice CSS that's useful for most apps
   // Just remove them if they're not what you want
@@ -15,9 +18,30 @@
     height: 100%;
   }
 
+  body {
+    background: #2F4550;
+    color: #F4F4F9;
+    font-family: 'Roboto', sans-serif;
+  }
+  h1 {
+      font-weight: bold;
+  }
+
   *,
   *:before,
   *:after {
     box-sizing: inherit;
   }
+
+  .dashboard-title {
+    font-size: 36px;
+  }
+  .dashboard-subtitle {
+    font-size: 30px;
+    .date-header {
+      font-weight: bold;
+      color: #B8DBD9;
+    }
+  }
+
 }
